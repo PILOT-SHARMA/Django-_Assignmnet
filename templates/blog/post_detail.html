@@ -1,0 +1,105 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }} - My Blog{% endblock %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 820px;">
+
+  <!-- Back -->
+  <a href="{% url 'home' %}" class="d-inline-flex align-items-center gap-1 mb-3"
+     style="color:var(--gray); font-size:0.9rem; text-decoration:none; font-weight:500;">
+    <i class="bi bi-arrow-left"></i> Back to Home
+  </a>
+
+  <!-- Post Image -->
+  {% if post.image %}
+    <img src="{{ post.image.url }}" alt="{{ post.title }}" class="post-detail-img"/>
+  {% endif %}
+
+  <!-- Title -->
+  <h1 class="post-detail-title">{{ post.title }}</h1>
+
+  <!-- Meta Bar -->
+  <div class="post-meta-bar">
+    <div class="author-badge">
+      <div class="author-avatar">{{ post.author.username|first|upper }}</div>
+      {{ post.author.username }}
+    </div>
+    <span><i class="bi bi-calendar3 me-1"></i>{{ post.created_at|date:"F d, Y" }}</span>
+    <span><i class="bi bi-clock me-1"></i>{{ post.created_at|date:"g:i A" }}</span>
+    <span><i class="bi bi-heart-fill me-1" style="color:#ef4444;"></i>{{ like_count }} like{{ like_count|pluralize }}</span>
+    <span><i class="bi bi-chat me-1"></i>{{ comments.count }} comment{{ comments.count|pluralize }}</span>
+  </div>
+
+  <!-- Content -->
+  <div class="post-content mb-4">
+    {{ post.content|linebreaks }}
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="d-flex align-items-center gap-2 flex-wrap mb-4">
+    {% if user.is_authenticated %}
+      <a href="{% url 'toggle_like' post.pk %}"
+         class="btn-like {% if liked %}liked{% endif %}">
+        {% if liked %}
+          <i class="bi bi-heart-fill"></i> Liked ({{ like_count }})
+        {% else %}
+          <i class="bi bi-heart"></i> Like ({{ like_count }})
+        {% endif %}
+      </a>
+    {% endif %}
+
+    {% if user == post.author %}
+      <a href="{% url 'edit_post' post.pk %}"
+         class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+        <i class="bi bi-pencil me-1"></i>Edit
+      </a>
+      <a href="{% url 'delete_post' post.pk %}"
+         class="btn btn-sm btn-outline-danger rounded-pill px-3">
+        <i class="bi bi-trash me-1"></i>Delete
+      </a>
+    {% endif %}
+  </div>
+
+  <!-- Comments Section -->
+  <div class="comment-section">
+    <h4><i class="bi bi-chat-dots me-2"></i>Comments ({{ comments.count }})</h4>
+
+    <!-- Comment Form -->
+    {% if user.is_authenticated %}
+      <form method="post" class="mb-4">
+        {% csrf_token %}
+        <div class="mb-2">
+          {{ comment_form.text }}
+        </div>
+        <button type="submit" class="btn btn-sm btn-primary rounded-pill px-4">
+          <i class="bi bi-send me-1"></i>Post Comment
+        </button>
+      </form>
+    {% else %}
+      <div class="alert alert-light border mb-4" style="font-size:0.9rem;">
+        <a href="{% url 'login' %}" style="color:var(--primary); font-weight:600;">Login</a> to leave a comment.
+      </div>
+    {% endif %}
+
+    <!-- Comments List -->
+    {% if comments %}
+      {% for comment in comments %}
+        <div class="comment-card">
+          <div class="comment-author">
+            <i class="bi bi-person-circle me-1"></i>{{ comment.user.username }}
+          </div>
+          <div class="comment-text">{{ comment.text }}</div>
+          <div class="comment-time">{{ comment.created_at|date:"M d, Y · g:i A" }}</div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p style="color:var(--gray); font-size:0.9rem; text-align:center; padding:1.5rem 0;">
+        No comments yet. Be the first to comment!
+      </p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

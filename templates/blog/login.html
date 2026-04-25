@@ -1,0 +1,68 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Login - My Blog{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="text-center mb-4">
+      <div style="font-size:2.5rem; margin-bottom:0.5rem;">📝</div>
+      <h2>Welcome Back</h2>
+      <p class="subtitle">Sign in to your account to continue</p>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label class="form-label" for="id_username">
+          <i class="bi bi-person me-1"></i>Username
+        </label>
+        <input
+          type="text"
+          name="username"
+          id="id_username"
+          class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+          placeholder="Enter your username"
+          autofocus
+          required
+        />
+        {% for error in form.username.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label" for="id_password">
+          <i class="bi bi-lock me-1"></i>Password
+        </label>
+        <input
+          type="password"
+          name="password"
+          id="id_password"
+          class="form-control {% if form.password.errors %}is-invalid{% endif %}"
+          placeholder="Enter your password"
+          required
+        />
+        {% for error in form.password.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger mb-3" role="alert">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+      {% endif %}
+
+      <button type="submit" class="btn-auth">
+        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+      </button>
+    </form>
+
+    <p class="auth-divider mt-3">
+      Don't have an account? <a href="{% url 'signup' %}">Sign Up</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
